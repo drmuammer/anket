@@ -3,7 +3,7 @@
   publish = ".next"
 
 [build.environment]
-  NEXT_PUBLIC_NETLIFY_IDENTITY_URL = "https://your-site-name.netlify.app/.netlify/identity"
+  NEXT_PUBLIC_NETLIFY_IDENTITY_URL = "https://tatbikat.netlify.app/.netlify/identity"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
