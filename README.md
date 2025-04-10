@@ -1,0 +1,63 @@
+# Deprem Tatbikatı Anket Sistemi
+
+Bu proje, deprem tatbikatları sırasında kullanılmak üzere tasarlanmış bir anket sistemidir. Sistem, mobil ve web platformlarında çalışabilen, kullanıcı dostu bir arayüze sahiptir.
+
+## Özellikler
+
+- Kullanıcı yönetimi (Admin, Anketör, Katılımcı)
+- Anket oluşturma ve yönetme
+- Zamanlanmış anket gönderimi
+- Anket sonuçlarının raporlanması
+- Mobil uyumlu arayüz
+- Çevrimdışı anket cevaplama
+- Bildirim sistemi
+
+## Kurulum
+
+1. Projeyi klonlayın:
+```bash
+git clone https://github.com/your-username/deprem-tatbikati-anket.git
+cd deprem-tatbikati-anket
+```
+
+2. Bağımlılıkları yükleyin:
+```bash
+npm install
+```
+
+3. Firebase yapılandırması:
+   - Firebase Console'dan yeni bir proje oluşturun
+   - Authentication, Firestore, Storage ve Cloud Messaging servislerini etkinleştirin
+   - `.env.local` dosyasını Firebase yapılandırma bilgilerinizle güncelleyin
+
+4. Projeyi başlatın:
+```bash
+npm run dev
+```
+
+## Kullanım
+
+1. Admin olarak giriş yapın
+2. Anket şablonları oluşturun
+3. Anketleri planlayın ve katılımcılara atayın
+4. Anket sonuçlarını görüntüleyin ve raporlayın
+
+## Teknolojiler
+
+- Next.js
+- TypeScript
+- Firebase
+- Bootstrap
+- React Bootstrap
+
+## Katkıda Bulunma
+
+1. Bu depoyu fork edin
+2. Yeni bir branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Değişikliklerinizi commit edin (`git commit -m 'Add some amazing feature'`)
+4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
+5. Bir Pull Request oluşturun
+
+## Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır. Daha fazla bilgi için `LICENSE` dosyasına bakın. 

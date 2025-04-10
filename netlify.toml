@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[build.environment]
+  NEXT_PUBLIC_NETLIFY_IDENTITY_URL = "https://your-site-name.netlify.app/.netlify/identity"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[functions]
+  included_files = ["node_modules/**/*"]
+  node_bundler = "esbuild" 
