@@ -28,6 +28,7 @@ export const register = async (email: string, password: string) => {
         });
         return user;
     } catch (error) {
+        console.error('Registration error:', error);
         throw error;
     }
 };
