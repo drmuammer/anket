@@ -1,22 +1,14 @@
-import { AppProps } from 'next/app';
-import { useEffect } from 'react';
-import { auth } from '@/services/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
-import { useRouter } from 'next/router';
 import '@/styles/globals.css';
+import type { AppProps } from 'next/app';
+import { useEffect } from 'react';
+import netlifyIdentity from 'netlify-identity-widget';
 
 export default function App({ Component, pageProps }: AppProps) {
-    const router = useRouter();
-
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (!user && router.pathname !== '/') {
-                router.push('/');
-            }
+        netlifyIdentity.init({
+            APIUrl: process.env.NEXT_PUBLIC_NETLIFY_IDENTITY_URL,
         });
-
-        return () => unsubscribe();
-    }, [router]);
+    }, []);
 
     return <Component {...pageProps} />;
 } 
