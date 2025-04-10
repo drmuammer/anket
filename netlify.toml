@@ -1,6 +1,6 @@
 [build]
   command = "npm run build"
-  publish = "out"
+  publish = ".next"
 
 [build.environment]
   NEXT_PUBLIC_NETLIFY_IDENTITY_URL = "https://your-site-name.netlify.app/.netlify/identity"
