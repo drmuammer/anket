@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Deprem Tatbikatı Anket Sistemi
 
 Bu proje, deprem tatbikatları sırasında kullanılmak üzere tasarlanmış bir anket sistemidir. Sistem, mobil ve web platformlarında çalışabilen, kullanıcı dostu bir arayüze sahiptir.
@@ -61,3 +62,6 @@ npm run dev
 ## Lisans
 
 Bu proje MIT lisansı altında lisanslanmıştır. Daha fazla bilgi için `LICENSE` dosyasına bakın. 
+=======
+# anket
+>>>>>>> c583ace8d4cd3b5272c8b4c9bcbc207cc47a4390
