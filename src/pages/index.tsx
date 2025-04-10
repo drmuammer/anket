@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Form, Alert } from 'react-bootstrap';
 import { useRouter } from 'next/router';
-import { login, signup, initAuth } from '@/services/auth';
+import { login, register, initAuth } from '@/services/auth';
 
 export default function Home() {
     const [email, setEmail] = useState('');
@@ -21,7 +21,7 @@ export default function Home() {
             if (isLogin) {
                 await login(email, password);
             } else {
-                await signup(email, password);
+                await register(email, password);
             }
             router.push('/dashboard');
         } catch (error) {
