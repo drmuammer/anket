@@ -208,7 +208,10 @@ export default function SurveyResults() {
                             ) : (
                                 <Row>
                                     <Col md={6}>
-                                        <Pie data={stats.chartData} />
+                                        {stats.chartData && (
+                                            <Pie data={stats.chartData as ChartData<'pie', number[], string>} />
+                                        )}
+
                                     </Col>
                                     <Col md={6}>
                                         <Table striped bordered hover>
