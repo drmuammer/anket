@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
 import { Container, Form, Button, Alert, Card, Row, Col } from 'react-bootstrap';
 import { FaPlus, FaTrash } from 'react-icons/fa';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 interface Unit {
     id: string;
@@ -26,6 +28,8 @@ export default function CreateSurvey() {
     const [units, setUnits] = useState<Unit[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [startTime, setStartTime] = useState<Date | null>(null);
+    const [duration, setDuration] = useState<number>(60); // default to 60 minutes
     const router = useRouter();
 
     useEffect(() => {
@@ -114,45 +118,73 @@ export default function CreateSurvey() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!startTime) {
+            setError('Lütfen anketin başlangıç zamanını seçin.');
+            return;
+        }
+
         try {
             setLoading(true);
             setError(null);
 
-            // Get current user
+            console.log('Anket oluşturma verisi:', {
+                title,
+                description,
+                unit_id: unitId,
+                questions,
+                start_time: startTime.toISOString(),
+                duration
+            });
+
+            // Get current user for error checking
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) throw new Error('Kullanıcı oturumu bulunamadı');
+            if (!user) {
+                throw new Error('Kullanıcı oturumu bulunamadı');
+            }
 
             // Basic validation
-            if (!title.trim()) throw new Error('Anket başlığı gerekli');
-            if (!unitId) throw new Error('Birim seçimi gerekli');
-            if (questions.length === 0) throw new Error('En az bir soru eklemelisiniz');
+            if (!title.trim()) {
+                throw new Error('Anket başlığı gerekli');
+            }
+            if (!unitId) {
+                throw new Error('Birim seçimi gerekli');
+            }
+            if (questions.length === 0) {
+                throw new Error('En az bir soru eklemelisiniz');
+            }
 
-            // Create survey with minimal data first
-            const { data, error: insertError } = await supabase
+            // Check multi-choice questions have options
+            const invalidQuestion = questions.find(q =>
+                (q.type === 'radio' || q.type === 'checkbox' || q.type === 'select') &&
+                (!q.options || q.options.length < 2)
+            );
+            if (invalidQuestion) {
+                throw new Error(`Çoklu seçim sorularının en az 2 seçeneği olmalıdır: "${invalidQuestion.text}"`);
+            }
+
+            const { data, error } = await supabase
                 .from('surveys')
                 .insert({
                     title: title.trim(),
                     description: description.trim(),
                     unit_id: unitId,
-                    questions: questions,
+                    questions,
+                    start_time: startTime.toISOString(),
+                    duration,
                     created_by: user.id
                 })
-                .select()
-                .single();
+                .select();
 
-            if (insertError) {
-                console.error('Insert error:', insertError);
-                throw new Error('Anket oluşturulamadı: ' + insertError.message);
+            if (error) {
+                console.error('Supabase hata detayları:', error);
+                throw error;
             }
 
-            if (!data) {
-                throw new Error('Anket oluşturuldu ancak veri döndürülemedi');
-            }
-
-            router.push('/surveys');
+            console.log('Anket başarıyla oluşturuldu:', data);
+            router.push('/admin/surveys');
         } catch (err) {
-            console.error('Anket oluşturma hatası:', err);
-            setError(err instanceof Error ? err.message : 'Bilinmeyen bir hata oluştu');
+            console.error('Anket oluşturulurken hata:', err);
+            setError('Anket oluşturulurken bir hata oluştu: ' + (err instanceof Error ? err.message : 'Bilinmeyen hata'));
         } finally {
             setLoading(false);
         }
@@ -205,6 +237,31 @@ export default function CreateSurvey() {
                                     </option>
                                 ))}
                             </Form.Select>
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Başlangıç Zamanı</Form.Label>
+                            <DatePicker
+                                selected={startTime}
+                                onChange={(date: Date | null) => setStartTime(date)}
+                                showTimeSelect
+                                timeFormat="HH:mm"
+                                timeIntervals={15}
+                                dateFormat="MMMM d, yyyy h:mm aa"
+                                className="form-control"
+                                placeholderText="Başlangıç zamanını seçin"
+                            />
+                        </Form.Group>
+
+                        <Form.Group className="mb-3">
+                            <Form.Label>Süre (dakika)</Form.Label>
+                            <Form.Control
+                                type="number"
+                                value={duration}
+                                onChange={(e) => setDuration(Number(e.target.value))}
+                                min={1}
+                                required
+                            />
                         </Form.Group>
                     </Card.Body>
                 </Card>

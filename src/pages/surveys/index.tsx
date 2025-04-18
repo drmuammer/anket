@@ -8,6 +8,8 @@ interface Survey {
     title: string;
     description: string;
     created_at: string;
+    start_time: string;
+    duration: number;
 }
 
 export default function UnitSurveys() {
@@ -45,7 +47,6 @@ export default function UnitSurveys() {
             setLoading(true);
             setError(null);
 
-            // Kullanıcının birime erişim yetkisini kontrol et
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) {
                 router.push('/login');
@@ -63,7 +64,6 @@ export default function UnitSurveys() {
                 throw new Error('Bu birime erişim yetkiniz yok');
             }
 
-            // Birime ait anketleri al
             const { data, error } = await supabase
                 .from('surveys')
                 .select('*')
@@ -71,7 +71,15 @@ export default function UnitSurveys() {
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
-            setSurveys(data || []);
+
+            const currentTime = new Date().getTime();
+            const activeSurveys = data.filter((survey: Survey) => {
+                const startTime = new Date(survey.start_time).getTime();
+                const endTime = startTime + survey.duration * 60000;
+                return currentTime >= startTime && currentTime <= endTime;
+            });
+
+            setSurveys(activeSurveys || []);
         } catch (err) {
             console.error('Anketler yüklenirken hata:', err);
             setError('Anketler yüklenirken bir hata oluştu: ' + (err instanceof Error ? err.message : 'Bilinmeyen hata'));
@@ -106,7 +114,7 @@ export default function UnitSurveys() {
 
             {surveys.length === 0 ? (
                 <Alert variant="info">
-                    Bu birim için henüz anket oluşturulmamış.
+                    Bu birim için henüz aktif anket yok.
                 </Alert>
             ) : (
                 <Table striped bordered hover>
