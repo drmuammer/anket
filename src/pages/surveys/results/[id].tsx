@@ -197,7 +197,7 @@ export default function SurveyResults() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {stats.answers.map((answer, i) => (
+                                        {Array.isArray(stats.answers) && stats.answers.map((answer, i) => (
                                             <tr key={i}>
                                                 <td>{i + 1}</td>
                                                 <td>{answer}</td>
