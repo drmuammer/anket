@@ -41,3 +41,4 @@ next-env.d.ts
 # Node.js installation
 /node-v18.17.0-linux-x64
 /node-v18.17.0-linux-x64.tar.xz 
+/node-v*
