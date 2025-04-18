@@ -36,4 +36,8 @@ next-env.d.ts
 .idea/
 .vscode/
 *.swp
-*.swo 
+*.swo
+
+# Node.js installation
+/node-v18.17.0-linux-x64
+/node-v18.17.0-linux-x64.tar.xz 

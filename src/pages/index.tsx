@@ -8,6 +8,7 @@ export default function Home() {
     const [password, setPassword] = useState('');
     const [isLogin, setIsLogin] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -17,6 +18,8 @@ export default function Home() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        setLoading(true);
+
         try {
             if (isLogin) {
                 await login(email, password);
@@ -27,6 +30,8 @@ export default function Home() {
         } catch (error) {
             console.error('Authentication error:', error);
             setError('Kimlik doğrulama hatası. Lütfen tekrar deneyin.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -52,6 +57,7 @@ export default function Home() {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
+                                        disabled={loading}
                                     />
                                 </Form.Group>
                                 <Form.Group className="mb-3">
@@ -61,15 +67,22 @@ export default function Home() {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
+                                        disabled={loading}
                                     />
                                 </Form.Group>
-                                <Button variant="primary" type="submit" className="w-100 mb-3">
-                                    {isLogin ? 'Giriş Yap' : 'Kayıt Ol'}
+                                <Button
+                                    variant="primary"
+                                    type="submit"
+                                    className="w-100 mb-3"
+                                    disabled={loading}
+                                >
+                                    {loading ? 'Yükleniyor...' : (isLogin ? 'Giriş Yap' : 'Kayıt Ol')}
                                 </Button>
                                 <Button
                                     variant="link"
                                     className="w-100"
                                     onClick={() => setIsLogin(!isLogin)}
+                                    disabled={loading}
                                 >
                                     {isLogin
                                         ? 'Hesabınız yok mu? Kayıt olun'

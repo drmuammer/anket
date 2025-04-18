@@ -1,113 +1,153 @@
-import { useEffect, useState } from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { getCurrentUser, isAuthenticated } from '@/services/auth';
+import { supabase } from '@/lib/supabase';
+import { Container, Row, Col, Card, Button, Alert } from 'react-bootstrap';
+import { FaBuilding, FaHospital, FaMapMarkerAlt } from 'react-icons/fa';
 
-type UserRole = 'admin' | 'anketor' | 'katilimci';
-
-interface User {
+interface Unit {
     id: string;
-    email: string;
-    role: UserRole;
+    name: string;
+    description: string;
+    icon: string;
 }
 
 export default function Dashboard() {
-    const router = useRouter();
-    const [user, setUser] = useState<User | null>(null);
+    const [units, setUnits] = useState<Unit[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
-        const checkAuth = async () => {
-            if (!isAuthenticated()) {
-                router.push('/');
-                return;
-            }
+        loadUnits();
+    }, []);
 
-            const currentUser = getCurrentUser();
-            if (currentUser) {
-                // TODO: Get user role from Netlify Identity metadata
-                setUser({
-                    id: currentUser.id,
-                    email: currentUser.email || '',
-                    role: 'katilimci' // Default role
-                });
-            }
+    const loadUnits = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const { data, error } = await supabase
+                .from('units')
+                .select('*')
+                .order('name', { ascending: true });
+
+            if (error) throw error;
+            setUnits(data);
+        } catch (err) {
+            console.error('Birimler yüklenirken hata:', err);
+            setError('Birimler yüklenirken bir hata oluştu: ' + (err instanceof Error ? err.message : 'Bilinmeyen hata'));
+        } finally {
             setLoading(false);
-        };
+        }
+    };
 
-        checkAuth();
-    }, [router]);
+    const getIcon = (iconName: string) => {
+        switch (iconName) {
+            case 'hospital':
+                return <FaHospital size={24} />;
+            case 'map':
+                return <FaMapMarkerAlt size={24} />;
+            default:
+                return <FaBuilding size={24} />;
+        }
+    };
+
+    const handleUnitClick = (unitId: string) => {
+        router.push(`/surveys?unit=${unitId}`);
+    };
 
     if (loading) {
         return (
-            <Container className="mt-5">
-                <Row className="justify-content-center">
-                    <Col md={6}>
-                        <Card>
-                            <Card.Body className="text-center">
-                                <div className="spinner-border text-primary" role="status">
-                                    <span className="visually-hidden">Yükleniyor...</span>
-                                </div>
-                                <p className="mt-3">Yükleniyor...</p>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
+            <Container className="mt-4">
+                <Alert variant="info">Yükleniyor...</Alert>
             </Container>
         );
     }
 
+    if (error) {
+        return (
+            <Container className="mt-4">
+                <Alert variant="danger">{error}</Alert>
+            </Container>
+        );
+    }
+
+    // Birimleri kategorilere ayır
+    const aileHekimleri = units.filter(unit => unit.name === 'Aile Hekimi Birimi');
+    const ilceBirimleri = units.filter(unit => unit.name === 'İlçe Koordinasyon Birimi');
+    const alanBirimleri = units.filter(unit => unit.name === 'Alan Birimi');
+
     return (
         <Container className="mt-4">
-            <Row>
-                <Col>
-                    <h1>Dashboard</h1>
-                    <p>Hoş geldiniz, {user?.email}</p>
-                </Col>
+            <h2 className="mb-4">Birimler</h2>
+
+            {/* Aile Hekimi Birimleri */}
+            <h4 className="mb-3">Aile Hekimi Birimleri</h4>
+            <Row className="mb-4">
+                {aileHekimleri.map((unit) => (
+                    <Col key={unit.id} xs={12} sm={6} md={4} lg={3} className="mb-3">
+                        <Card className="h-100">
+                            <Card.Body className="d-flex flex-column align-items-center">
+                                <div className="mb-2">{getIcon(unit.icon)}</div>
+                                <Card.Title className="text-center">{unit.name}</Card.Title>
+                                <Card.Text className="text-center">{unit.description}</Card.Text>
+                                <Button
+                                    variant="primary"
+                                    className="mt-auto"
+                                    onClick={() => handleUnitClick(unit.id)}
+                                >
+                                    Anketleri Görüntüle
+                                </Button>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                ))}
             </Row>
 
-            <Row className="mt-4">
-                {user?.role === 'admin' && (
-                    <Col md={4}>
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>Admin Paneli</Card.Title>
-                                <Card.Text>
-                                    Anket yönetimi ve kullanıcı rolleri için admin paneli.
-                                </Card.Text>
-                                <Button variant="primary">Admin Paneline Git</Button>
+            {/* İlçe Koordinasyon Birimleri */}
+            <h4 className="mb-3">İlçe Koordinasyon Birimleri</h4>
+            <Row className="mb-4">
+                {ilceBirimleri.map((unit) => (
+                    <Col key={unit.id} xs={12} sm={6} md={4} lg={3} className="mb-3">
+                        <Card className="h-100">
+                            <Card.Body className="d-flex flex-column align-items-center">
+                                <div className="mb-2">{getIcon(unit.icon)}</div>
+                                <Card.Title className="text-center">{unit.name}</Card.Title>
+                                <Card.Text className="text-center">{unit.description}</Card.Text>
+                                <Button
+                                    variant="primary"
+                                    className="mt-auto"
+                                    onClick={() => handleUnitClick(unit.id)}
+                                >
+                                    Anketleri Görüntüle
+                                </Button>
                             </Card.Body>
                         </Card>
                     </Col>
-                )}
+                ))}
+            </Row>
 
-                {user?.role === 'anketor' && (
-                    <Col md={4}>
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>Anketör Paneli</Card.Title>
-                                <Card.Text>
-                                    Anket oluşturma ve yönetme paneli.
-                                </Card.Text>
-                                <Button variant="primary">Anketör Paneline Git</Button>
+            {/* Alan Koordinasyon Birimleri */}
+            <h4 className="mb-3">Alan Koordinasyon Birimleri</h4>
+            <Row className="mb-4">
+                {alanBirimleri.map((unit) => (
+                    <Col key={unit.id} xs={12} sm={6} md={4} lg={3} className="mb-3">
+                        <Card className="h-100">
+                            <Card.Body className="d-flex flex-column align-items-center">
+                                <div className="mb-2">{getIcon(unit.icon)}</div>
+                                <Card.Title className="text-center">{unit.name}</Card.Title>
+                                <Card.Text className="text-center">{unit.description}</Card.Text>
+                                <Button
+                                    variant="primary"
+                                    className="mt-auto"
+                                    onClick={() => handleUnitClick(unit.id)}
+                                >
+                                    Anketleri Görüntüle
+                                </Button>
                             </Card.Body>
                         </Card>
                     </Col>
-                )}
-
-                {user?.role === 'katilimci' && (
-                    <Col md={4}>
-                        <Card>
-                            <Card.Body>
-                                <Card.Title>Anketlerim</Card.Title>
-                                <Card.Text>
-                                    Size atanan anketleri görüntüleyin ve cevaplayın.
-                                </Card.Text>
-                                <Button variant="primary">Anketlerime Git</Button>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                )}
+                ))}
             </Row>
         </Container>
     );

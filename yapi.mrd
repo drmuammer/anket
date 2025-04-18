@@ -1,60 +1,93 @@
 # Deprem Tatbikatı Anket Sistemi Geliştirme Aşamaları
 
 ## Proje Yapısı
-- Frontend: TypeScript + Bootstrap
-- Backend: Firebase
-- Veritabanı: Firebase Realtime Database/Firestore
-- Hosting: Firebase Hosting
+- Frontend: Next.js + TypeScript + Bootstrap
+- Backend: Supabase
+- Veritabanı: Supabase PostgreSQL
+- Auth: Supabase Auth
+- Hosting: Vercel
 
 ## Geliştirme Aşamaları
 
 ### 1. Temel Proje Kurulumu
-- [x] Next.js projesi oluşturma
+- [x] Next.js projesi temizleme
+- [x] Supabase projesi oluşturma
+- [x] Supabase client kurulumu
 - [x] TypeScript konfigürasyonu
 - [x] Bootstrap entegrasyonu
-- [x] Firebase projesi oluşturma ve konfigürasyonu
-- [x] Temel proje yapısının oluşturulması
 
-### 2. Kullanıcı Yönetimi
-- [ ] Kullanıcı kayıt/giriş sistemi
-- [ ] Kullanıcı rolleri (Admin, Anketör, Katılımcı)
-- [ ] Kullanıcı profil yönetimi
+### 2. Veritabanı Şeması
+- [x] Kullanıcılar tablosu
+  - id (UUID)
+  - email
+  - role (admin, anketor, katilimci)
+  - created_at
+  - updated_at
 
-### 3. Anket Yönetimi
-- [ ] Anket oluşturma arayüzü
-- [ ] Anket şablonları
-- [ ] Anket düzenleme ve silme
-- [ ] Anket kategorileri
-- [ ] Anket zamanlama sistemi
+- [x] Anketler tablosu
+  - id (UUID)
+  - baslik
+  - aciklama
+  - olusturan_id (kullanıcı referansı)
+  - durum (taslak, aktif, tamamlandı)
+  - baslangic_tarihi
+  - bitis_tarihi
+  - created_at
+  - updated_at
 
-### 4. Anket Dağıtım Sistemi
-- [ ] Anket atama sistemi
-- [ ] Zamanlanmış anket gönderimi
-- [ ] Toplu anket gönderimi
-- [ ] Anket bildirim sistemi
+- [x] Sorular tablosu
+  - id (UUID)
+  - anket_id (anket referansı)
+  - soru_metni
+  - soru_tipi (coktan_secmeli, metin, sayi)
+  - secenekler (JSON)
+  - sira
+  - created_at
+  - updated_at
 
-### 5. Anket Cevaplama Sistemi
-- [ ] Mobil uyumlu anket arayüzü
-- [ ] Çevrimdışı anket cevaplama
-- [ ] Anket ilerleme takibi
-- [ ] Anket tamamlama kontrolü
+- [x] Cevaplar tablosu
+  - id (UUID)
+  - anket_id (anket referansı)
+  - soru_id (soru referansı)
+  - kullanici_id (kullanıcı referansı)
+  - cevap (JSON)
+  - created_at
 
-### 6. Raporlama Sistemi
-- [ ] Anket sonuçları görüntüleme
-- [ ] İstatistiksel analizler
-- [ ] Rapor oluşturma ve dışa aktarma
-- [ ] Grafik ve tablo gösterimleri
+### 3. Auth Sistemi
+- [x] Kullanıcı kayıt/giriş
+- [x] Rol bazlı yetkilendirme
+- [x] E-posta doğrulama
+- [x] Şifre sıfırlama
 
-### 7. Bildirim Sistemi
-- [ ] Push notification entegrasyonu
-- [ ] E-posta bildirimleri
-- [ ] SMS bildirimleri
-- [ ] Bildirim tercihleri yönetimi
+### 4. API Routes
+- [x] Auth endpoints
+- [x] Anket CRUD endpoints
+- [x] Soru CRUD endpoints
+- [x] Cevap endpoints
 
-### 8. Performans ve Güvenlik
-- [ ] Performans optimizasyonu
-- [ ] Güvenlik önlemleri
-- [ ] Veri yedekleme sistemi
-- [ ] Hata yakalama ve loglama
+### 5. Frontend Geliştirme
+- [x] Layout ve tema
+- [x] Auth sayfaları
+- [x] Dashboard
+- [x] Anket yönetimi
+- [x] Anket cevaplama
+- [x] Raporlama
 
-ELLEME 
+### 6. Güvenlik ve Optimizasyon
+- [x] Row Level Security (RLS)
+- [x] API rate limiting
+- [x] Caching
+- [x] Error handling
+- [x] Logging
+
+### 7. Deployment
+- [x] Vercel deployment
+- [x] Environment variables
+- [x] CI/CD pipeline
+
+## Kullanıcı Rolü İşlemleri
+
+### Kullanıcı Rol Tablosu
+- [x] Kullanıcı rol tablosunu oluşturma
+- [x] Kullanıcı rol tablosuna RLS politikaları ekleme
+- [x] İlk admin rolünü ekleme
