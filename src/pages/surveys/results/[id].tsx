@@ -233,15 +233,16 @@ export default function SurveyResults() {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {stats.chartData.labels.map((label, i) => (
-                                                    <tr key={label}>
-                                                        <td>{label}</td>
-                                                        <td>{stats.chartData.datasets[0].data[i]}</td>
-                                                        <td>
-                                                            {((stats.chartData.datasets[0].data[i] / stats.totalAnswers) * 100).toFixed(1)}%
-                                                        </td>
-                                                    </tr>
-                                                ))}
+                                                {stats.chartData &&
+                                                    stats.chartData.labels.map((label, i) => (
+                                                        <tr key={label}>
+                                                            <td>{label}</td>
+                                                            <td>{stats.chartData?.datasets[0].data[i]}</td>
+                                                            <td>
+                                                                {((stats.chartData?.datasets[0].data[i] / stats.totalAnswers) * 100).toFixed(1)}%
+                                                            </td>
+                                                        </tr>
+                                                    ))}
                                             </tbody>
                                         </Table>
                                     </Col>
