@@ -9,6 +9,13 @@ interface Unit {
     name: string;
     description: string;
     icon: string;
+    hasAccess?: boolean; // Add property to track if user has access
+}
+
+interface UnitPermission {
+    id: string;
+    user_id: string;
+    unit_id: string;
 }
 
 export default function Dashboard() {
@@ -26,13 +33,43 @@ export default function Dashboard() {
             setLoading(true);
             setError(null);
 
-            const { data, error } = await supabase
+            // Get current user
+            const { data: { user } } = await supabase.auth.getUser();
+
+            // Fetch all units
+            const { data: unitsData, error: unitsError } = await supabase
                 .from('units')
                 .select('*')
                 .order('name', { ascending: true });
 
-            if (error) throw error;
-            setUnits(data);
+            if (unitsError) throw unitsError;
+
+            // If user is admin, they have access to all units
+            if (user?.user_metadata?.role === 'admin') {
+                setUnits(unitsData.map(unit => ({ ...unit, hasAccess: true })));
+            } else if (user) {
+                // Fetch user's unit permissions
+                const { data: permissionsData, error: permissionsError } = await supabase
+                    .from('unit_permissions')
+                    .select('unit_id')
+                    .eq('user_id', user.id);
+
+                if (permissionsError) throw permissionsError;
+
+                // Create a set of unit IDs the user has access to
+                const accessibleUnitIds = new Set(permissionsData?.map(p => p.unit_id) || []);
+
+                // Mark units with access flag
+                const unitsWithAccess = unitsData.map(unit => ({
+                    ...unit,
+                    hasAccess: accessibleUnitIds.has(unit.id)
+                }));
+
+                setUnits(unitsWithAccess);
+            } else {
+                // No logged in user, no access to any unit
+                setUnits(unitsData.map(unit => ({ ...unit, hasAccess: false })));
+            }
         } catch (err) {
             console.error('Birimler yüklenirken hata:', err);
             setError('Birimler yüklenirken bir hata oluştu: ' + (err instanceof Error ? err.message : 'Bilinmeyen hata'));
@@ -52,8 +89,12 @@ export default function Dashboard() {
         }
     };
 
-    const handleUnitClick = (unitId: string) => {
-        router.push(`/surveys?unit=${unitId}`);
+    const handleUnitClick = (unitId: string, hasAccess: boolean) => {
+        if (hasAccess) {
+            router.push(`/surveys?unit=${unitId}`);
+        } else {
+            alert('Bu birime erişim izniniz bulunmamaktadır.');
+        }
     };
 
     if (loading) {
@@ -92,9 +133,9 @@ export default function Dashboard() {
                                 <Card.Title className="text-center">{unit.name}</Card.Title>
                                 <Card.Text className="text-center">{unit.description}</Card.Text>
                                 <Button
-                                    variant="primary"
+                                    variant={unit.hasAccess ? "success" : "primary"}
                                     className="mt-auto"
-                                    onClick={() => handleUnitClick(unit.id)}
+                                    onClick={() => handleUnitClick(unit.id, unit.hasAccess || false)}
                                 >
                                     Anketleri Görüntüle
                                 </Button>
@@ -115,9 +156,9 @@ export default function Dashboard() {
                                 <Card.Title className="text-center">{unit.name}</Card.Title>
                                 <Card.Text className="text-center">{unit.description}</Card.Text>
                                 <Button
-                                    variant="primary"
+                                    variant={unit.hasAccess ? "success" : "primary"}
                                     className="mt-auto"
-                                    onClick={() => handleUnitClick(unit.id)}
+                                    onClick={() => handleUnitClick(unit.id, unit.hasAccess || false)}
                                 >
                                     Anketleri Görüntüle
                                 </Button>
@@ -138,9 +179,9 @@ export default function Dashboard() {
                                 <Card.Title className="text-center">{unit.name}</Card.Title>
                                 <Card.Text className="text-center">{unit.description}</Card.Text>
                                 <Button
-                                    variant="primary"
+                                    variant={unit.hasAccess ? "success" : "primary"}
                                     className="mt-auto"
-                                    onClick={() => handleUnitClick(unit.id)}
+                                    onClick={() => handleUnitClick(unit.id, unit.hasAccess || false)}
                                 >
                                     Anketleri Görüntüle
                                 </Button>

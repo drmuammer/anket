@@ -28,6 +28,7 @@ export default function CreateSurvey() {
     const [units, setUnits] = useState<Unit[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
     const [startTime, setStartTime] = useState<Date | null>(null);
     const [duration, setDuration] = useState<number>(60); // default to 60 minutes
     const router = useRouter();
@@ -126,6 +127,7 @@ export default function CreateSurvey() {
         try {
             setLoading(true);
             setError(null);
+            setSuccess(null);
 
             console.log('Anket oluşturma verisi:', {
                 title,
@@ -181,7 +183,22 @@ export default function CreateSurvey() {
             }
 
             console.log('Anket başarıyla oluşturuldu:', data);
-            router.push('/admin/surveys');
+
+            // Başarı mesajı göster ve form alanlarını temizle
+            setSuccess('Anket başarıyla oluşturuldu! Yeni bir anket oluşturabilirsiniz.');
+
+            // Form alanlarını temizle
+            setTitle('');
+            setDescription('');
+            setUnitId('');
+            setQuestions([]);
+            setStartTime(null);
+            setDuration(60);
+
+            // Sayfayı yenilemeden, aynı sayfada kal
+            // setTimeout(() => {
+            //     router.push('/');
+            // }, 2000);
         } catch (err) {
             console.error('Anket oluşturulurken hata:', err);
             setError('Anket oluşturulurken bir hata oluştu: ' + (err instanceof Error ? err.message : 'Bilinmeyen hata'));
@@ -197,6 +214,12 @@ export default function CreateSurvey() {
             {error && (
                 <Alert variant="danger" className="mb-4">
                     {error}
+                </Alert>
+            )}
+
+            {success && (
+                <Alert variant="success" className="mb-4">
+                    {success}
                 </Alert>
             )}
 
